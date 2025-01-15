@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Define the database connection
+datasource db {
+  provider = "sqlite" // You can change this to "postgresql" if using PostgreSQL
+  url      = "file:./dev.db"
+}
+
+// Generate the Prisma client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User model
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  name     String
+  sessions Session[]
+  folders  Folder[]
+}
+
+// Session model for session-based authentication
+model Session {
+  id           String   @id @default(cuid())
+  sid          String   @unique
+  data         String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id])
+}
+
+// Folder model
+model Folder {
+  id       Int      @id @default(autoincrement())
+  name     String
+  userId   Int
+  user     User     @relation(fields: [userId], references: [id])
+  files    File[]
+}
+
+// File model
+model File {
+  id        Int      @id @default(autoincrement())
+  name      String
+  size      Int
+  uploadedAt DateTime @default(now())
+  folderId  Int
+  folder    Folder   @relation(fields: [folderId], references: [id])
+  url       String   @unique // For storing the cloud storage URL
+}
+
