@@ -146,30 +146,37 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
 // Folder CRUD routes
 app.get('/folders', async (req, res) => {
-  const folders = await prisma.folder.findMany();
-  res.render('folders', { folders });
+  try {
+    const folders = await prisma.folder.findMany();
+    res.render('folders', { folders });
+  } catch (error) {
+    console.error('Error fetching folders:', error);
+    res.status(500).send('An error occurred while fetching folders.');
+  }
 });
 
 app.post('/folders', async (req, res) => {
   const { name } = req.body;
 
-  // Simulate a logged-in user (replace this with your actual user authentication logic)
-  const userId = req.user?.id || 1; // Default to a hardcoded userId for now
-
+  // Validate the folder name
   if (!name || name.trim() === '') {
     return res.status(400).send('Folder name is required.');
   }
 
   try {
+    // Create the new folder
     await prisma.folder.create({
       data: {
         name,
-        userId, // Ensure this is defined
+        // Include userId if folders are associated with users
+        // userId: req.user?.id,
       },
     });
-    res.redirect('/upload'); // Redirect back to the upload page
+    // Redirect to the folders page after successful creation
+    res.redirect('/folders');
   } catch (error) {
     console.error('Error creating folder:', error);
+    // Send a 500 Internal Server Error response
     res.status(500).send('An error occurred while creating the folder.');
   }
 });
