@@ -21,6 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+//for css
+app.use(express.static('public'));
+
 // Session setup
 app.use(
   session({
