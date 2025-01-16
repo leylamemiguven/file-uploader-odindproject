@@ -181,6 +181,29 @@ app.post('/folders', async (req, res) => {
   }
 });
 
+//route for renaming folders
+app.post('/folders/:id/rename', async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  // Validate the new folder name
+  if (!name || name.trim() === '') {
+    return res.status(400).send('Folder name is required.');
+  }
+
+  try {
+    // Update the folder in the database
+    await prisma.folder.update({
+      where: { id: parseInt(id, 10) },
+      data: { name },
+    });
+    res.redirect('/upload'); // Redirect to the folders page after renaming
+  } catch (error) {
+    console.error('Error renaming folder:', error);
+    res.status(500).send('An error occurred while renaming the folder.');
+  }
+});
+
 app.get('/folders/:id', async (req, res) => {
   const folderId = parseInt(req.params.id, 10);
   const folder = await prisma.folder.findUnique({ where: { id: folderId } });
