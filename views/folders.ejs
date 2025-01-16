@@ -1,21 +1,23 @@
-<%- include('layout', { body: `
-    <h2>Manage Folders</h2>
-    <form action="/folders" method="POST">
-      <label for="name">New Folder Name:</label>
-      <input type="text" name="name" id="name" required>
-      <button type="submit">Create Folder</button>
-    </form>
-    <ul>
-      <% folders.forEach(folder => { %>
-        <li>
-          <strong><%= folder.name %></strong>
-          <a href="/folders/<%= folder.id %>">View</a>
-          <form action="/folders/<%= folder.id %>" method="POST" style="display:inline;">
-            <input type="hidden" name="_method" value="DELETE">
-            <button type="submit">Delete</button>
-          </form>
-        </li>
-      <% }); %>
-    </ul>
-  ` }) %>
-  
+<%- include('layout') %>
+
+<h2>Manage Folders</h2>
+<form action="/folders" method="POST">
+  <label for="name">Create New Folder:</label>
+  <input type="text" name="name" id="name" required>
+  <button type="submit">Create Folder</button>
+</form>
+
+<ul>
+  <% folders.forEach(folder => { %>
+    <li>
+      <strong><%= folder.name %></strong>
+      <form action="/folders/<%= folder.id %>/rename" method="POST" style="display: inline;">
+        <input type="text" name="name" placeholder="New name" required>
+        <button type="submit">Rename</button>
+      </form>
+      <form action="/folders/<%= folder.id %>/delete" method="POST" style="display: inline;">
+        <button type="submit">Delete</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>

@@ -2,8 +2,9 @@
 
 <h2>Upload a File</h2>
 <form action="/upload" method="POST" enctype="multipart/form-data">
-  <label for="folderId">Select Folder:</label>
-  <select name="folderId" id="folderId" required>
+  <label for="folderId">Select Folder (Optional):</label>
+  <select name="folderId" id="folderId">
+    <option value="">No Folder</option> <!-- Add an option for no folder -->
     <% folders.forEach(folder => { %>
       <option value="<%= folder.id %>"><%= folder.name %></option>
     <% }) %>
@@ -13,14 +14,14 @@
   <button type="submit">Upload</button>
 </form>
 
-<!-- <h3>Uploaded Files</h3>
+<h3>Uploaded Files</h3>
 <ul>
   <% files.forEach(file => { %>
     <li>
       <p><strong>Name:</strong> <%= file.name %></p>
       <p><strong>Size:</strong> <%= file.size %> bytes</p>
-      <p><strong>Folder:</strong> <%= file.folderId %></p>
+      <p><strong>Folder:</strong> <%= file.folderId ? file.folderId : 'No Folder' %></p>
       <img src="<%= file.url %>" alt="<%= file.name %>" style="max-width: 200px; max-height: 200px;" />
     </li>
   <% }) %>
-</ul> -->
+</ul>

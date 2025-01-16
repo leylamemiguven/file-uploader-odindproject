@@ -115,9 +115,11 @@ app.get('/logout', (req, res) => {
 // Upload file
 app.get('/upload', async (req, res) => {
   try {
-    const folders = await prisma.folder.findMany();
-    res.render('upload', { folders });
+    const folders = await prisma.folder.findMany(); // Fetch all folders
+    const files = await prisma.file.findMany(); // Fetch all uploaded files
+    res.render('upload', { folders, files }); // Pass folders and files to the view
   } catch (error) {
+    console.error(error);
     res.status(500).send('Error loading upload page');
   }
 });
@@ -125,25 +127,22 @@ app.get('/upload', async (req, res) => {
 app.post('/upload', upload.single('file'), async (req, res) => {
   const { folderId } = req.body;
 
-    if (!folderId || isNaN(folderId)) {
-    return res.status(400).send('Invalid folder ID.');
-  }
-
-
   try {
     const file = await prisma.file.create({
       data: {
         name: req.file.originalname,
         size: req.file.size,
-        folderId: parseInt(folderId, 10),
-        url: `/uploads/${req.file.filename}`, // Placeholder for cloud storage
+        folderId: folderId ? parseInt(folderId, 10) : null, // Handle null folderId
+        url: `/uploads/${req.file.filename}`,
       },
     });
-    res.status(201).json({ message: 'File uploaded successfully', file });
+    res.redirect('/upload'); // Redirect back to the upload page
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error(error);
+    res.status(500).send('Error uploading file');
   }
 });
+
 
 // Folder CRUD routes
 app.get('/folders', async (req, res) => {
@@ -153,15 +152,25 @@ app.get('/folders', async (req, res) => {
 
 app.post('/folders', async (req, res) => {
   const { name } = req.body;
-  const userId = req.user?.id; // Assuming the user is logged in
+
+  // Simulate a logged-in user (replace this with your actual user authentication logic)
+  const userId = req.user?.id || 1; // Default to a hardcoded userId for now
+
+  if (!name || name.trim() === '') {
+    return res.status(400).send('Folder name is required.');
+  }
 
   try {
-    const folder = await prisma.folder.create({
-      data: { name, userId },
+    await prisma.folder.create({
+      data: {
+        name,
+        userId, // Ensure this is defined
+      },
     });
-    res.redirect('/folders');
+    res.redirect('/upload'); // Redirect back to the upload page
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error creating folder:', error);
+    res.status(500).send('An error occurred while creating the folder.');
   }
 });
 
